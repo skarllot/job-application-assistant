@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Meziantou.Analyzer": {
+        "type": "Direct",
+        "requested": "[3.0.15, )",
+        "resolved": "3.0.15",
+        "contentHash": "i0oG9c/EJ0RvIRxd8RPd/KNDlpunArWDnxeo7EKPAI7/Xz7rMNRzY898ksQUHDPtO1xzbVqsCmWwW+wmhqPx3w=="
+      },
+      "Microsoft.AspNetCore.App.Internal.Assets": {
+        "type": "Direct",
+        "requested": "[10.0.3, )",
+        "resolved": "10.0.3",
+        "contentHash": "mr3Zn+ht8lijYvlMIasftw9opU9hsLKDdnOgQMmYI3RjWPJLOF9l8+YHDseRkTs97wOrULmJgo/NDCmzL/EGDg=="
+      }
+    }
+  }
+}
