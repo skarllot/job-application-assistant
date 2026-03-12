@@ -45,6 +45,7 @@ graph TB
         RootPkgProps[Directory.Packages.props - root]
         SrcPkgProps[Directory.Packages.props - src]
         TestPkgProps[Directory.Packages.props - tests]
+        TestBuildProps[Directory.Build.props - tests]
         EditorConfig[.editorconfig]
         CSharpier[CSharpier - dotnet local tool]
     end
@@ -163,7 +164,7 @@ graph TB
 
 **Implementation Notes**
 - The `global.json` file is the single source of truth for the SDK version across local development and CI
-- The CI pipeline references `global.json` via `actions/setup-dotnet@v4` `global-json-file` parameter instead of specifying `dotnet-version` directly, ensuring local and CI SDK versions stay in sync
+- The CI pipeline references `global.json` via `actions/setup-dotnet@v5` `global-json-file` parameter instead of specifying `dotnet-version` directly, ensuring local and CI SDK versions stay in sync
 
 #### BuildPropsConfig
 
@@ -243,10 +244,10 @@ graph TB
 **Responsibilities & Constraints**
 - `.config/dotnet-tools.json` manifest with CSharpier 1.2.6
 - `.csharpierrc.yaml` configuration: `printWidth: 120`
-- All generated code passes `dotnet csharpier --check .` with zero violations
+- All generated code passes `dotnet csharpier check .` with zero violations
 
 **Implementation Notes**
-- Developers run `dotnet csharpier .` to format; CI runs `dotnet csharpier --check .` to validate
+- Developers run `dotnet csharpier format .` to format; CI runs `dotnet csharpier check .` to validate
 - Tool restore via `dotnet tool restore` in CI
 
 ### Application
@@ -320,6 +321,7 @@ graph TB
 - Smoke test validates the test infrastructure works (e.g., a simple assertion)
 - Test project mirrors source structure for future feature tests
 - Root namespace: `JobApplicationAssistant.Web.Tests`
+- `tests/Directory.Build.props` suppresses CA1707 (underscores in identifiers) to allow `Method_Should_Behavior` test naming convention
 
 ### CI/CD
 
@@ -332,7 +334,7 @@ graph TB
 
 **Responsibilities & Constraints**
 - Workflow file: `.github/workflows/ci.yml`
-- Triggers: `push` and `pull_request` events
+- Triggers: `push` (main branch only) and `pull_request` events
 - Runs on `ubuntu-latest`
 - Steps execute sequentially: checkout → setup .NET (from global.json) → tool restore → format check → restore (locked-mode) → build → test
 
@@ -340,11 +342,11 @@ graph TB
 
 | Step | Command | Purpose |
 |------|---------|---------|
-| Checkout | `actions/checkout@v4` | Clone repository |
-| Setup .NET | `actions/setup-dotnet@v4` with `global-json-file: global.json` | Install .NET SDK version from global.json |
+| Checkout | `actions/checkout@v5` | Clone repository |
+| Setup .NET | `actions/setup-dotnet@v5` with `global-json-file: global.json` | Install .NET SDK version from global.json |
 | Tool Restore | `dotnet tool restore` | Restore CSharpier local tool |
-| Format Check | `dotnet csharpier --check .` | Validate code formatting (fast, no packages needed) |
-| Cache NuGet | `actions/cache@v4` with key based on `packages.lock.json` files | Cache NuGet global-packages folder to speed up restores |
+| Format Check | `dotnet csharpier check .` | Validate code formatting (fast, no packages needed) |
+| Cache NuGet | `actions/cache@v5` with key based on `packages.lock.json` files | Cache NuGet global-packages folder to speed up restores |
 | Restore | `dotnet restore --locked-mode` | Deterministic package restore |
 | Build | `dotnet build --no-restore -c Release` | Build with warnings as errors |
 | Test | `dotnet test --no-build -c Release` | Execute all tests |
@@ -354,7 +356,7 @@ graph TB
 - `--no-restore` and `--no-build` flags to avoid redundant work between steps
 - Warnings-as-errors already set in Directory.Build.props, enforced during build step
 - SDK version sourced from `global.json` via `global-json-file` parameter — no hardcoded version in workflow
-- NuGet cache uses `actions/cache@v4` with path `~/.nuget/packages` and key derived from hashing `**/packages.lock.json` files; lock files guarantee cache correctness since `--locked-mode` ensures exact version match
+- NuGet cache uses `actions/cache@v5` with path `~/.nuget/packages` and key derived from hashing `**/packages.lock.json` files; lock files guarantee cache correctness since `--locked-mode` ensures exact version match
 
 ## Testing Strategy
 

@@ -46,7 +46,7 @@
   - Latest version: 1.2.6 (February 6, 2026)
   - Installed as dotnet local tool via `.config/dotnet-tools.json` manifest
   - Configuration via `.csharpierrc.yaml` file
-  - CI check: `dotnet csharpier --check .`
+  - CI check: `dotnet csharpier check .` (v1.2.x uses subcommand syntax: `format`, `check`)
 - **Implications**: Install as local tool, configure 120 char line width in `.csharpierrc.yaml`
 
 ### Meziantou.Analyzer
@@ -72,7 +72,7 @@
   - `actions/setup-dotnet` supports `dotnet-version: 10.0.x`
   - Standard workflow: checkout → setup-dotnet → restore → build → test → format check
   - NuGet caching available via `actions/cache`
-- **Implications**: Straightforward workflow; use `--locked-mode` for restore, `--no-restore` for build/test steps, `dotnet csharpier --check .` for format validation
+- **Implications**: Straightforward workflow; use `--locked-mode` for restore, `--no-restore` for build/test steps, `dotnet csharpier check .` for format validation. Use v5 actions (checkout, setup-dotnet, cache) for Node.js 24 compatibility
 
 ## Architecture Pattern Evaluation
 
